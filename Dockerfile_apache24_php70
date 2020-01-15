@@ -1,0 +1,21 @@
+FROM php:7.0-apache
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    locales
+
+#php php-cli php-curl php-mysql php-imap php-gd php-odbc php-recode php-imagick imagemagick php-memcache php-xml php-intl php-json php-mysql php-mbstring php-zip php-sqlite3 php-bcmath
+
+RUN echo "nl_NL ISO-8859-1\nnl_NL.UTF-8 UTF-8\n" > /etc/locale.gen && locale-gen && locale -a
+
+RUN sed -i 's#Listen 80#Listen 8080#g' /etc/apache2/ports.conf
+
+RUN a2enmod vhost_alias rewrite deflate include expires headers setenvif remoteip
+
+ADD ./build/apache2/vhost.conf /etc/apache2/sites-enabled/000-default.conf
+
+WORKDIR /var/www/HTML
+
+EXPOSE 8080
+
+CMD ["apache2-foreground"]
